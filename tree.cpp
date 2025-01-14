@@ -137,15 +137,15 @@ void postorder_traversing(node *temp){
     }
 }
 
-node* delete_copy(node* root, int value) {
+node* delete_copy_left(node* root, int value) {
     if (root == NULL) {
         return root;
     }
     if (root->data < value) {
-        root->right = delete_copy(root->right, value);
+        root->right = delete_copy_left(root->right, value);
     }
     else if (root->data > value) {
-        root->left = delete_copy(root->left, value);
+        root->left = delete_copy_left(root->left, value);
     }
     else {
         if (root->left == NULL) {
@@ -159,28 +159,59 @@ node* delete_copy(node* root, int value) {
             return temp;
         }
         node* temp = root->right;
-        while (temp && temp->left) {
+        while (temp->left != NULL) {
             temp = temp->left;  
         }
         root->data = temp->data;
-        root->right = delete_copy(root->right, temp->data);
+        root->right = delete_copy_left(root->left, temp->data);
     }
+    return root;
+}
 
+node2* delete_copy_right(node2* root, int value) {
+    if (root == NULL) {
+        return root;
+    }
+    if (root->data < value) {
+        root->right = delete_copy_right(root->right, value);
+    }
+    else if (root->data > value) {
+        root->left = delete_copy_right(root->left, value);
+    }
+    else {
+        if (root->left == NULL) {
+            node2* temp = root->right;
+            delete root;
+            return temp;
+        }
+        else if (root->right == NULL) {
+            node2* temp = root->left;
+            delete root;
+            return temp;
+        }
+        node2* temp = root->left;
+        while (temp->right != NULL) {
+            temp = temp->right;  
+        }
+        root->data = temp->data;
+        root->left = delete_copy_right(root->right, temp->data);
+    }
+    cout << "node deleted successfully\n";
     return root;
 }
 
 
-node2* delete_merge(node2* root, int value) {
-    node2* temp;
+node* delete_merge_left(node* root, int value) {
+    node* temp;
 
     if (root == NULL) {
         return root; 
     }
     if (root->data < value) {
-        root->right = delete_merge(root->right, value);  
+        root->right = delete_merge_left(root->right, value);  
     }
     else if (root->data > value) {
-        root->left = delete_merge(root->left, value);  
+        root->left = delete_merge_left(root->left, value);  
     }
     else {
         if (root->left == NULL && root->right == NULL) {
@@ -198,17 +229,79 @@ node2* delete_merge(node2* root, int value) {
             return temp;  
         }
         else {
-            node2* temp2 = root->left;
+            node* temp2 = root->left;
             while (temp2->right != NULL) {
                 temp2 = temp2->right;
             }
             root->data = temp2->data;
-            root->left = delete_merge(root->left, temp2->data);
+            root->left = delete_merge_left(root->left, temp2->data);
+        }
+    }
+    cout << "node deleted successfully\n";
+    return root;  
+}
+
+node2* delete_merge_right(node2* root, int value) {
+    node2* temp;
+    if (root == NULL) {
+        return root; 
+    }
+    if (root->data < value) {
+        root->right = delete_merge_right(root->right, value);  
+    }
+    else if (root->data > value) {
+        root->left = delete_merge_right(root->left, value);  
+    }
+    else {
+        if (root->left == NULL && root->right == NULL) {
+            delete root;  
+            return NULL;  
+        }
+        else if (root->left == NULL) {
+            temp = root->right;  
+            delete root;
+            return temp;  
+        }
+        else if (root->right == NULL) {
+            temp = root->left; 
+            delete root;
+            return temp;  
+        }
+        else {
+            node2* temp2 = root->right;
+            while (temp2->left != NULL) {
+                temp2 = temp2->left;
+            }
+            root->data = temp2->data;
+            root->right = delete_merge_right(root->left, temp2->data);
         }
     }
     return root;  
 }
 
+node *search(node *temp, int value){
+    while (temp != NULL){
+    if (temp->data == value)
+    return temp;
+    else if(temp->data < value){
+        temp = temp->right;
+        search (temp,value);
+    }
+    else{
+        temp = temp->left;
+        search (temp,value);
+    }
+    }
+}
+
+int depth(node* temp) {
+    if (temp == nullptr) {
+        return 0; 
+    }
+    int leftDepth = depth(temp->left);
+    int rightDepth = depth(temp->right);
+    return max(leftDepth, rightDepth) + 1;
+}
 
 int main() {
     int choice, value;
@@ -235,12 +328,14 @@ int main() {
             case 2:
                 cout << "Enter value to delete: ";
                 cin >> value;
-                root = delete_copy(root, value);
+                root = delete_copy_left(root, value);
+                parent = delete_copy_right(parent, value);
                 break;
             case 3:
                 cout << "Enter value to delete: ";
                 cin >> value;
-                parent = delete_merge(parent, value);
+                root = delete_merge_left(root, value);
+                parent = delete_merge_right(parent, value);
                 break;   
             case 4:
                 cout << "Minimum value: " << min(root) << endl;
