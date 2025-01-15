@@ -163,7 +163,7 @@ node* delete_copy_left(node* root, int value) {
             temp = temp->left;  
         }
         root->data = temp->data;
-        root->right = delete_copy_left(root->left, temp->data);
+        root->right = delete_copy_left(root->right, temp->data);
     }
     return root;
 }
